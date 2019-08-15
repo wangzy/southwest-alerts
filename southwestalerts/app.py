@@ -10,8 +10,8 @@ import asyncio
 from pyppeteer import launch
 from pyppeteer.network_manager import Request
 
-from southwestalerts.southwest import Southwest
-from southwestalerts import settings
+from southwest import Southwest
+import settings
 
 
 async def get_page(browser, url):
@@ -51,9 +51,6 @@ async def login_get_headers(url, username, password):
     await page.click(selector)
     await browser.close()
     return user.headers
-
-
-
 
 def check_for_price_drops(username, password, email, headers):
     southwest = Southwest(username, password, headers)
@@ -168,14 +165,15 @@ def check_for_price_drops(username, password, email, headers):
             logging.info(message)
             if matching_flights_price > 0 and refund_amount > 0:
                 logging.info('Sending email for price drop')
-                resp = requests.post(
-                    'https://api.mailgun.net/v3/{}/messages'.format(settings.mailgun_domain),
-                    auth=('api', settings.mailgun_api_key),
-                    data={'from': 'Southwest Alerts <southwest-alerts@{}>'.format(settings.mailgun_domain),
-                          'to': [email],
-                          'subject': 'Southwest Price Drop Alert',
-                          'text': message})
-                assert resp.status_code == 200
+                print(message)
+                #resp = requests.post(
+                #    'https://api.mailgun.net/v3/{}/messages'.format(settings.mailgun_domain),
+                #    auth=('api', settings.mailgun_api_key),
+                #    data={'from': 'Southwest Alerts <southwest-alerts@{}>'.format(settings.mailgun_domain),
+                #          'to': [email],
+                #          'subject': 'Southwest Price Drop Alert',
+                #          'text': message})
+                #assert resp.status_code == 200
 
 
 if __name__ == '__main__':

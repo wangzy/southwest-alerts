@@ -10,9 +10,6 @@ import requests
 
 BASE_URL = 'https://mobile.southwest.com'
 
-
-
-
 class Southwest(object):
     def __init__(self, username, password, headers):
         self._session = _SouthwestSession(username, password, headers)
