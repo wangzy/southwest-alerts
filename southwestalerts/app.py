@@ -97,12 +97,14 @@ def check_for_price_drops(username, password, email, headers):
 
                     origin_airport = origination_destination['segments'][0]['originationAirportCode']
                     destination_airport = origination_destination['segments'][-1]['destinationAirportCode']
-                    available = southwest.get_available_flights(
-                        departure_date,
-                        origin_airport,
-                        destination_airport
-                    )
-
+                    try:
+                        available = southwest.get_available_flights(
+                           departure_date,
+                           origin_airport,
+                           destination_airport
+                        )
+                    except:
+                        continue
                     #Find that the flight that matches the purchased flight
                     matching_flight = next(f for f in available['flightShoppingPage']['outboundPage']['cards'] if f['departureTime'] == departure_time and f['arrivalTime'] == arrival_time)
                     if matching_flight['fares'] is None:
