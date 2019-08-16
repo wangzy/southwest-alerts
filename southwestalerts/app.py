@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import locale
 import time
 locale.resetlocale()
@@ -12,7 +14,7 @@ from pyppeteer.network_manager import Request
 
 from southwest import Southwest
 import settings
-
+import random
 
 async def get_page(browser, url):
     page = await browser.newPage()
@@ -66,7 +68,7 @@ def notify(pushover_config,alert):
       }),{ "Content-type": "application/x-www-form-urlencoded" })
     conn.getresponse()
 
-def check_for_price_drops(username, password, email, headers):
+def check_for_price_drops(username, password, headers):
     southwest = Southwest(username, password, headers)
     for trip in southwest.get_upcoming_trips()['trips']:
         for flight in trip['flights']:
@@ -137,11 +139,14 @@ def check_for_price_drops(username, password, email, headers):
 
                     origin_airport = origination_destination['segments'][0]['originationAirportCode']
                     destination_airport = origination_destination['segments'][-1]['destinationAirportCode']
-                    available = southwest.get_available_flights_dollars(
-                        departure_date,
-                        origin_airport,
-                        destination_airport
-                    )
+                    try:
+                        available = southwest.get_available_flights_dollars(
+                           departure_date,
+                           origin_airport,
+                           destination_airport
+                        )
+                    except:
+                        continue
                 # Find that the flight that matches the purchased flight
                 matching_flight = next(f for f in available['flightShoppingPage']['outboundPage']['cards'] if f['departureTime'] == departure_time and f['arrivalTime'] == arrival_time)
                 if matching_flight['fares'] is None:
@@ -183,14 +188,6 @@ def check_for_price_drops(username, password, email, headers):
                 logging.info('Sending email for price drop')
                 print(message)
                 notify('pushover.json',message)
-                #resp = requests.post(
-                #    'https://api.mailgun.net/v3/{}/messages'.format(settings.mailgun_domain),
-                #    auth=('api', settings.mailgun_api_key),
-                #    data={'from': 'Southwest Alerts <southwest-alerts@{}>'.format(settings.mailgun_domain),
-                #          'to': [email],
-                #          'subject': 'Southwest Price Drop Alert',
-                #          'text': message})
-                #assert resp.status_code == 200
 
 
 if __name__ == '__main__':
@@ -199,4 +196,5 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     for user in settings.users:
         user.headers = loop.run_until_complete(login_get_headers(mobile_url, user.username, user.password))
-        check_for_price_drops(user.username, user.password, user.email, user.headers)
+        check_for_price_drops(user.username, user.password, user.headers)
+        time.sleep(random.randint(10,30))
