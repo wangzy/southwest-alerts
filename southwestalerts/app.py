@@ -52,6 +52,20 @@ async def login_get_headers(url, username, password):
     await browser.close()
     return user.headers
 
+def notify(pushover_config,alert):
+    if not pushover_config:
+       return
+    pushover = {str(k): str(v) for k, v in json.load(open(pushover_config)).items()}
+    conn = http.client.HTTPSConnection("api.pushover.net:443")
+
+    conn.request("POST","/1/messages.json",
+      urllib.parse.urlencode({
+        "token": pushover['token'],
+        "user":  pushover['user'],
+        "message": alert,
+      }),{ "Content-type": "application/x-www-form-urlencoded" })
+    conn.getresponse()
+
 def check_for_price_drops(username, password, email, headers):
     southwest = Southwest(username, password, headers)
     for trip in southwest.get_upcoming_trips()['trips']:
@@ -166,6 +180,7 @@ def check_for_price_drops(username, password, email, headers):
             if matching_flights_price > 0 and refund_amount > 0:
                 logging.info('Sending email for price drop')
                 print(message)
+                notify('pushover.json',message)
                 #resp = requests.post(
                 #    'https://api.mailgun.net/v3/{}/messages'.format(settings.mailgun_domain),
                 #    auth=('api', settings.mailgun_api_key),
