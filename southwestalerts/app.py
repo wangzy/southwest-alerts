@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-import locale
 import time
-locale.resetlocale()
-#locale.setlocale(locale.LC_ALL, '')
 import logging
 import requests
 import sys
@@ -122,7 +119,7 @@ def check_for_price_drops(username, password, headers):
                                 logging.info("All fare buckets for this iten are sold out")
                                 break
                             else:
-                                matching_flight_price = locale.atoi(matching_flight['fares'][faretype]['price']['amount'])
+                                matching_flight_price = int(matching_flight['fares'][faretype]['price']['amount'].replace(',',''))
                                 #if fare type isn't sold out, then set the price and break out of the faretype loop.
                                 matching_flights_price += matching_flight_price
                                 break
@@ -163,7 +160,7 @@ def check_for_price_drops(username, password, headers):
                             logging.info("All fare buckets for this iten are sold out")
                             break
                         else:
-                            matching_flight_price = locale.atoi(matching_flight['fares'][faretype]['price']['amount'])
+                            matching_flight_price = int(matching_flight['fares'][faretype]['price']['amount'].replace(',',''))
                         # if fare type isn't sold out, then set the price and break out of the faretype loop.
                             matching_flights_price += matching_flight_price
                             break
