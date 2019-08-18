@@ -5,6 +5,7 @@ import logging
 import requests
 import sys
 import asyncio
+import json
 
 from pyppeteer import launch
 from pyppeteer.network_manager import Request
@@ -105,6 +106,8 @@ def check_for_price_drops(username, password, headers):
                     except:
                         continue
                     #Find that the flight that matches the purchased flight
+                    if not available:
+                        continue
                     matching_flight = next(f for f in available['flightShoppingPage']['outboundPage']['cards'] if f['departureTime'] == departure_time and f['arrivalTime'] == arrival_time)
                     if matching_flight['fares'] is None:
                         logging.info('This flight is not available for comparison, possible reason: %s', matching_flight['reasonIfUnavailable'])
@@ -127,6 +130,7 @@ def check_for_price_drops(username, password, headers):
 
             elif cancellation_details['currencyType'] == "Dollars":
                 logging.info('itinerary original total price: $%s', itinerary_price)
+                available = None
                 for origination_destination in cancellation_details['itinerary']['originationDestinations']:
                     departure_datetime = origination_destination['segments'][0]['departureDateTime'].split('.000')[0][:-3]
                     departure_date = departure_datetime.split('T')[0]
@@ -144,6 +148,8 @@ def check_for_price_drops(username, password, headers):
                         )
                     except:
                         continue
+                if not available:
+                    continue 
                 # Find that the flight that matches the purchased flight
                 matching_flight = next(f for f in available['flightShoppingPage']['outboundPage']['cards'] if f['departureTime'] == departure_time and f['arrivalTime'] == arrival_time)
                 if matching_flight['fares'] is None:
