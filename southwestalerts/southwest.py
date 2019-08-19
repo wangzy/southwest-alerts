@@ -82,6 +82,9 @@ class _SouthwestSession():
         self._session = requests.Session()
         self._login(username, password, headers)
 
+    def __del__(self):
+        self._session.close()
+
     def _login(self, username, password, headers):
         data = requests.post(BASE_URL + '/api/customer/v1/accounts/login', json={
             'accountNumberOrUserName': username, 'password': password},
@@ -104,7 +107,7 @@ class _SouthwestSession():
 
     def post(self, path, payload, success_codes=[200]):
         resp = self._session.post(self._get_url(path), data=json.dumps(payload),
-                                  headers=self._get_headers(self.headers))
+                                  headers=self._get_headers_all(self.headers))
         return self._parsed_response(resp, success_codes=success_codes)
 
 
@@ -121,7 +124,7 @@ class _SouthwestSession():
             # 'User-Agent': None, 'Connection': None, 'Accept-Encoding': None,
             # 'Accept': 'application/json',
         }
-        tempheaders = {**headers, **default}
+        #tempheaders = {**headers, **default}
         return default
 
     def _get_headers_all(self, headers):

@@ -13,6 +13,7 @@ from pyppeteer.network_manager import Request
 from southwest import Southwest
 import settings
 import random
+import http,urllib
 
 async def get_page(browser, url):
     page = await browser.newPage()
@@ -200,4 +201,4 @@ if __name__ == '__main__':
     for user in settings.users:
         user.headers = loop.run_until_complete(login_get_headers(mobile_url, user.username, user.password))
         check_for_price_drops(user.username, user.password, user.headers)
-        time.sleep(random.randint(10,30))
+        time.sleep(random.randint(5,15))
